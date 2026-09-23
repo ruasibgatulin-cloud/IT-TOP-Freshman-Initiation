@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Посвящение первокурсников · IT TOP</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0e14;
+    --panel: #121826;
+    --border: #1e2a44;
+    --accent: #00ff9d;
+    --accent2: #00c8ff;
+    --red: #ff3b3b;
+    --blue: #3b82ff;
+    --green: #22c55e;
+    --yellow: #ffd166;
+    --text: #c9d1e0;
+    --muted: #6b7690;
+    --font: 'JetBrains Mono', 'Courier New', monospace;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(0,255,157,.08), transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(0,200,255,.08), transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    padding: 20px 16px 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .screen { display: none; }
+  .screen.active { display: block; animation: fade .3s ease; }
+
+  @keyframes fade { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:none} }
+
+  /* ===== ТАЙМЕР ===== */
+  .timer-bar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,14,20,.95);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 14px;
+    margin: -20px -16px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 14px; letter-spacing: 1px;
+  }
+  .timer-bar .label { color: var(--muted); font-size: 11px; letter-spacing: 2px; }
+  .timer-bar .clock { color: var(--accent); font-weight: 900; font-size: 18px; letter-spacing: 2px; }
+  .timer-bar .clock.warn { color: var(--yellow); }
+  .timer-bar .clock.danger { color: var(--red); animation: pulse-red 1s infinite; }
+  @keyframes pulse-red { 0%,100% { opacity: 1; } 50% { opacity: .5; } }
+  .timer-bar .team-tag { font-size: 11px; padding: 4px 12px; border-radius: 4px; letter-spacing: 1px; font-weight: 700; }
+  .timer-bar .team-tag.red { background: rgba(255,59,59,.15); color: var(--red); border: 1px solid var(--red); }
+  .timer-bar .team-tag.blue { background: rgba(59,130,255,.15); color: var(--blue); border: 1px solid var(--blue); }
+  .timer-bar .team-tag.green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid var(--green); }
+
+  /* ===== СТАРТ ===== */
+  .terminal {
+    margin-top: 4vh;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0,255,157,.06);
+  }
+  .terminal-head {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 14px;
+    background: #0d1220;
+    border-bottom: 1px solid var(--border);
+  }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .dot.red { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green { background: #28c840; }
+  .terminal-head .title { margin-left: 12px; color: var(--muted); font-size: 13px; }
+  .terminal-body { padding: 26px 22px; line-height: 1.9; }
+  .terminal-body .line { color: var(--text); font-size: 15px; }
+  .terminal-body b { color: var(--accent); }
+
+  .hero-title { font-size: 24px; letter-spacing: 3px; color: var(--accent); margin-bottom: 10px; text-shadow: 0 0 20px rgba(0,255,157,.4); }
+  .hero-slogan { color: var(--accent2); font-size: 14px; font-style: italic; margin-bottom: 22px; line-height: 1.6; }
+
+  input[type=text] {
+    width: 100%; background: #0a0f1a; border: 1px solid var(--border);
+    color: var(--accent); font-family: var(--font); font-size: 16px;
+    padding: 12px 14px; border-radius: 6px; outline: none;
+    margin: 8px 0 16px; transition: border-color .15s;
+  }
+  input[type=text]:focus { border-color: var(--accent); }
+
+  button { font-family: var(--font); cursor: pointer; border: none; transition: all .15s; }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+
+  .primary {
+    background: var(--accent); color: #04120a;
+    padding: 14px 22px; font-size: 15px; font-weight: 700;
+    letter-spacing: 2px; border-radius: 6px; width: 100%; margin-top: 8px;
+  }
+  .primary:hover:not(:disabled) { background: #4dffb8; box-shadow: 0 0 20px rgba(0,255,157,.4); }
+  .primary.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+  .primary.ghost:hover:not(:disabled) { background: rgba(0,255,157,.1); }
+
+  .dice-btn {
+    background: #0a0f1a;
+    border: 1px dashed var(--accent2);
+    color: var(--accent2);
+    padding: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-radius: 6px;
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .dice-btn:hover:not(:disabled) { background: rgba(0,200,255,.08); border-style: solid; }
+
+  .ghost.small {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 8px 14px;
+    border-radius: 6px; font-size: 12px; letter-spacing: 1px;
+  }
+  .ghost.small:hover { color: var(--accent2); border-color: var(--accent2); }
+
+  .back-btn {
+    background: transparent;
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 12px 20px;
+    font-size: 13px;
+    letter-spacing: 2px;
+    border-radius: 6px;
+    font-weight: 700;
+    width: 100%;
+    margin-top: 16px;
+  }
+  .back-btn:hover { background: rgba(0,200,255,.12); }
+
+  .team-pick { display: grid; gap: 10px; margin-bottom: 16px; }
+  .team-pick.two { grid-template-columns: 1fr 1fr; }
+  .team-pick.three { grid-template-columns: 1fr 1fr 1fr; }
+  .team-btn {
+    padding: 16px 8px;
+    background: #0a0f1a;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    font-size: 13px;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  .team-btn:hover { transform: translateY(-2px); }
+  .team-btn[data-team="red"]:hover, .team-btn[data-team="red"].selected { border-color: var(--red); background: rgba(255,59,59,.12); color: var(--red); }
+  .team-btn[data-team="blue"]:hover, .team-btn[data-team="blue"].selected { border-color: var(--blue); background: rgba(59,130,255,.12); color: var(--blue); }
+  .team-btn[data-team="green"]:hover, .team-btn[data-team="green"].selected { border-color: var(--green); background: rgba(34,197,94,.12); color: var(--green); }
+
+  .assign-result {
+    margin: 16px 0;
+    padding: 18px;
+    border-radius: 8px;
+    background: #0a0f1a;
+    border: 1px solid var(--border);
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.7;
+    animation: pop .4s ease;
+  }
+  .assign-result .big-team {
+    display: block;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-top: 8px;
+  }
+  .assign-result.red { border-color: var(--red); }
+  .assign-result.red .big-team { color: var(--red); }
+  .assign-result.blue { border-color: var(--blue); }
+  .assign-result.blue .big-team { color: var(--blue); }
+  .assign-result.green { border-color: var(--green); }
+  .assign-result.green .big-team { color: var(--green); }
+
+  /* ===== КАРТА ===== */
+  .map-title { font-size: 24px; letter-spacing: 4px; color: var(--accent); margin-bottom: 6px; }
+  .map-sub { color: var(--muted); font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+
+  .stage-title {
+    font-size: 12px; letter-spacing: 3px; color: var(--accent2);
+    margin: 22px 0 12px; padding-bottom: 8px;
+    border-bottom: 1px dashed var(--border);
+  }
+  .stage-title:first-of-type { margin-top: 0; }
+
+  .station-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+
+  .station-tile {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 12px;
+    cursor: pointer;
+    text-align: left;
+    position: relative;
+    transition: all .15s;
+    color: var(--text);
+    min-height: 100px;
+  }
+  .station-tile:hover { border-color: var(--accent2); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,200,255,.12); }
+  .station-tile .num { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  .station-tile .st-title { font-size: 14px; font-weight: 700; color: var(--accent); margin: 6px 0 4px; line-height: 1.3; }
+  .station-tile .st-sub { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .station-tile.done { border-color: var(--accent); background: linear-gradient(180deg, rgba(0,255,157,.06), transparent); }
+  .station-tile .check { position: absolute; bottom: 10px; right: 12px; color: var(--accent); font-size: 16px; font-weight: 900; }
+  .station-tile.final-tile {
+    grid-column: 1 / -1;
+    background: linear-gradient(180deg, rgba(255,209,102,.06), transparent);
+    border-color: rgba(255,209,102,.4);
+  }
+  .station-tile.final-tile .st-title { color: var(--yellow); }
+  .station-tile.final-tile.done { border-color: var(--yellow); background: linear-gradient(180deg, rgba(255,209,102,.12), transparent); }
+  .station-tile.final-tile.done .check { color: var(--yellow); }
+
+  .progress-bar {
+    background: #0a0f1a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px; margin-bottom: 16px;
+  }
+  .progress-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-bottom: 8px; }
+  .progress-track { height: 8px; background: #0d1220; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); width: 0%; transition: width .4s ease; box-shadow: 0 0 12px rgba(0,255,157,.5); }
+  .progress-num { font-size: 12px; color: var(--accent); margin-top: 6px; text-align: right; }
+
+  /* ===== СТАНЦИЯ ===== */
+  .station-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0 16px;
+    margin-bottom: 16px;
+  }
+  .station-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 26px 22px;
+  }
+  #stationTitle { color: var(--accent); font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; line-height: 1.3; }
+  .type-tag {
+    display: inline-block; font-size: 11px; letter-spacing: 2px; color: var(--accent2);
+    border: 1px solid rgba(0,200,255,.4); padding: 3px 10px; border-radius: 4px; margin-bottom: 18px;
+  }
+  .station-desc { line-height: 1.8; font-size: 15px; margin-bottom: 20px; color: var(--text); }
+  .station-desc .banner {
+    display: block; background: #0a0f1a;
+    border-left: 3px solid var(--accent);
+    padding: 14px 16px; margin: 14px 0;
+    font-size: 15px; letter-spacing: 1px;
+    color: var(--accent); text-align: left;
+    word-break: break-word; line-height: 1.7;
+    white-space: pre-line;
+  }
+  .rules-list {
+    background: #0a0f1a; border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 18px; margin: 14px 0;
+  }
+  .rules-list .rules-title { font-size: 11px; letter-spacing: 2px; color: var(--accent2); margin-bottom: 10px; }
+  .rules-list ul { list-style: none; }
+  .rules-list li { padding: 4px 0 4px 20px; position: relative; font-size: 14px; line-height: 1.6; }
+  .rules-list li::before { content: "▸"; position: absolute; left: 0; color: var(--accent); }
+  .rules-list li.ban::before { content: "✕"; color: var(--red); }
+
+  .moves-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px; margin: 16px 0;
+  }
+  .move-card {
+    background: #0a0f1a; border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 10px; text-align: center;
+  }
+  .move-card .move-emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .move-card .move-num { font-size: 11px; color: var(--muted); letter-spacing: 2px; }
+  .move-card .move-text { font-size: 13px; color: var(--text); margin-top: 4px; }
+
+  .answer-row { display: flex; gap: 10px; align-items: stretch; }
+  .answer-row input { margin: 0; flex: 1; }
+  .answer-row .primary { width: auto; margin: 0; padding: 14px 22px; }
+
+  .feedback { margin-top: 14px; font-size: 14px; min-height: 20px; }
+  .feedback.ok { color: var(--accent); }
+  .feedback.err { color: var(--red); }
+
+  .hint {
+    display: none; margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(255,209,102,.08);
+    border-left: 3px solid var(--yellow);
+    color: var(--yellow); font-size: 13px;
+    border-radius: 4px; line-height: 1.6;
+  }
+  .hint.show { display: block; }
+  #hintBtn { margin-top: 16px; }
+
+  .big-done {
+    margin-top: 20px;
+    background: var(--accent); color: #04120a;
+    padding: 18px; font-size: 16px; font-weight: 900;
+    letter-spacing: 3px; border-radius: 8px; width: 100%;
+  }
+  .big-done:hover:not(:disabled) { background: #4dffb8; box-shadow: 0 0 24px rgba(0,255,157,.5); }
+
+  .round-timer {
+    margin-top: 18px; background: #0a0f1a;
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; text-align: center;
+  }
+  .round-timer .rt-label { font-size: 11px; color: var(--muted); letter-spacing: 2px; margin-bottom: 8px; }
+  .round-timer .rt-clock { font-size: 42px; font-weight: 900; color: var(--accent); letter-spacing: 4px; }
+  .round-timer .rt-clock.danger { color: var(--red); }
+  .round-timer button { margin-top: 12px; }
+
+  /* ===== ПЕРЕХОД В ПАРК ===== */
+  .transition-wrap {
+    text-align: center;
+    padding-top: 4vh;
+  }
+  .transition-title {
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    margin-bottom: 12px;
+    text-shadow: 0 0 20px rgba(0,255,157,.5);
+  }
+  .transition-sub {
+    color: var(--accent2);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .park-emoji {
+    font-size: 64px;
+    display: block;
+    margin: 16px 0;
+    animation: sway 3s ease-in-out infinite;
+  }
+  @keyframes sway {
+    0%,100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  /* ===== ФИНАЛ ===== */
+  .final-wrap { text-align: center; padding-top: 4vh; position: relative; z-index: 2; }
+  .glitch {
+    font-size: 34px; letter-spacing: 4px; color: var(--accent);
+    margin-bottom: 16px; text-shadow: 0 0 20px rgba(0,255,157,.5);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { text-shadow: 0 0 20px rgba(0,255,157,.5); }
+    50% { text-shadow: 0 0 40px rgba(0,255,157,.9); }
+  }
+  .final-sub { color: var(--accent2); margin-bottom: 24px; font-size: 15px; font-style: italic; line-height: 1.6; }
+  .final-message {
+    margin-top: 24px;
+    padding: 24px;
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(0,255,157,.08), transparent);
+    animation: pop .6s ease;
+  }
+  .final-message h2 { color: var(--accent); letter-spacing: 3px; margin-bottom: 14px; font-size: 22px; }
+  .final-message p { line-height: 1.8; font-size: 15px; margin-bottom: 10px; }
+  .final-teams { display: flex; justify-content: center; gap: 14px; margin: 20px 0; flex-wrap: wrap; }
+  .final-team-chip { padding: 8px 18px; border-radius: 20px; font-size: 13px; letter-spacing: 1px; }
+  .final-team-chip.red { background: rgba(255,59,59,.15); color: var(--red); border: 1px solid var(--red); }
+  .final-team-chip.blue { background: rgba(59,130,255,.15); color: var(--blue); border: 1px solid var(--blue); }
+  .final-team-chip.green { background: rgba(34,197,94,.15); color: var(--green); border: 1px solid var(--green); }
+  .small-muted { color: var(--muted); font-size: 13px; margin-top: 14px; }
+  .hidden { display: none !important; }
+  @keyframes pop { from{transform:scale(.95);opacity:0} to{transform:scale(1);opacity:1} }
+
+  /* ===== QR БОНУС ===== */
+  .qr-panel {
+    margin-top: 24px;
+    background: #0a0f1a;
+    border: 1px dashed var(--yellow);
+    border-radius: 10px;
+    padding: 20px; text-align: left;
+  }
+  .qr-panel .qr-title { color: var(--yellow); font-size: 15px; letter-spacing: 2px; margin-bottom: 10px; }
+  .qr-panel p { font-size: 13px; line-height: 1.7; color: var(--text); }
+
+  /* ===== MOBILE ===== */
+  @media (max-width: 520px) {
+    .answer-row { flex-direction: column; }
+    .answer-row .primary { width: 100%; }
+    .glitch { font-size: 20px; letter-spacing: 2px; }
+    .hero-title { font-size: 18px; letter-spacing: 1.5px; }
+    .transition-title { font-size: 20px; letter-spacing: 2px; }
+    .team-pick.three { grid-template-columns: 1fr; }
+    .team-pick.two { grid-template-columns: 1fr; }
+    .timer-bar { font-size: 12px; }
+    .timer-bar .clock { font-size: 15px; }
+    .round-timer .rt-clock { font-size: 32px; }
+    .park-emoji { font-size: 48px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ============ СТАРТ ============ -->
+  <section id="screen-start" class="screen active">
+    <div class="terminal">
+      <div class="terminal-head">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="title">~/it-top/dedication.sh</span>
+      </div>
+      <div class="terminal-body">
+        <h1 class="hero-title">ПОСВЯЩЕНИЕ ПЕРВОКУРСНИКОВ</h1>
+        <p class="hero-slogan">«Сегодня вы не просто первокурсники —<br>сегодня вы одна команда!»</p>
+
+        <p class="line">&gt; Введите своё имя:</p>
+        <input id="playerName" type="text" placeholder="например: Артём" maxlength="24" autocomplete="off">
+
+        <p class="line">&gt; Ваша команда на этап «Колледж»:</p>
+        <button id="diceBtn1" class="dice-btn" disabled>🎲 РАСПРЕДЕЛИТЬ СЛУЧАЙНО (1 из 2)</button>
+
+        <div id="assign1" class="assign-result hidden">
+          <div>Вам выпала команда:</div>
+          <span id="assign1Team" class="big-team">—</span>
+        </div>
+
+        <p class="line" style="font-size:12px;color:var(--muted);margin-top:4px;">Или выбери сам:</p>
+        <div class="team-pick two">
+          <button class="team-btn" data-team="red" data-phase="1">🔴 КРАСНЫЕ</button>
+          <button class="team-btn" data-team="blue" data-phase="1">🔵 СИНИЕ</button>
+        </div>
+
+        <button id="startBtn" class="primary" disabled>НАЧАТЬ КВЕСТ →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ КАРТА ============ -->
+  <section id="screen-map" class="screen">
+    <div class="timer-bar">
+      <div>
+        <div class="label">ОСТАЛОСЬ</div>
+        <div id="timerMap" class="clock">60:00</div>
+      </div>
+      <div id="teamTagMap" class="team-tag">—</div>
+    </div>
+
+    <h2 class="map-title">КАРТА КВЕСТА</h2>
+    <p class="map-sub" id="mapSub">Проходи станции. Нажми на плитку — откроется задание.</p>
+
+    <div class="progress-bar">
+      <div class="progress-label">ПРОГРЕСС</div>
+      <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+      <div id="progressNum" class="progress-num">0 / 6</div>
+    </div>
+
+    <h3 class="stage-title" id="stageTitle1">📍 ЭТАП 1 · КОЛЛЕДЖ</h3>
+    <div id="stage1" class="station-grid"></div>
+
+    <button id="toParkBtn" class="primary ghost hidden">🌳 ПЕРЕЙТИ В ПАРК ГРЕНАДА →</button>
+
+    <div id="stage2Wrap" class="hidden">
+      <h3 class="stage-title">📍 ЭТАП 2 · ПАРК ГРЕНАДА</h3>
+      <div id="stage2" class="station-grid"></div>
+    </div>
+
+    <div id="qrWrap" class="qr-panel">
+      <div class="qr-title">🎁 QR-БОНУСЫ</div>
+      <p>Пока другая команда проходит испытание, вы можете поискать спрятанные QR-коды. Они ведут на отдельные сайты с бонусами и подсказками.</p>
+    </div>
+  </section>
+
+  <!-- ============ ПЕРЕХОД В ПАРК ============ -->
+  <section id="screen-transition" class="screen">
+    <div class="transition-wrap">
+      <span class="park-emoji">🌳</span>
+      <h1 class="transition-title">ЭТАП 1 ЗАВЕРШЁН</h1>
+      <p class="transition-sub">
+        Вы прошли испытания в колледже!<br>
+        Сейчас команды перемешаются и разделятся на 3 состава —<br>
+        чтобы вы познакомились с новыми людьми.
+      </p>
+
+      <button id="diceBtn2" class="dice-btn">🎲 ПОЛУЧИТЬ НОВУЮ КОМАНДУ (1 из 3)</button>
+
+      <div id="assign2" class="assign-result hidden">
+        <div>Ваша новая команда:</div>
+        <span id="assign2Team" class="big-team">—</span>
+      </div>
+
+      <p class="line" style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center;">Или выбери сам:</p>
+      <div class="team-pick three">
+        <button class="team-btn" data-team="red" data-phase="2">🔴 КРАСНЫЕ</button>
+        <button class="team-btn" data-team="blue" data-phase="2">🔵 СИНИЕ</button>
+        <button class="team-btn" data-team="green" data-phase="2">🟢 ЗЕЛЁНЫЕ</button>
+      </div>
+
+      <button id="toParkGo" class="primary" disabled>В ПАРК ГРЕНАДА →</button>
+      <button id="backFromTransition" class="back-btn">← НАЗАД НА КАРТУ</button>
+    </div>
+  </section>
+
+  <!-- ============ СТАНЦИЯ ============ -->
+  <section id="screen-station" class="screen">
+    <div class="timer-bar">
+      <div>
+        <div class="label">ОСТАЛОСЬ</div>
+        <div id="timerStation" class="clock">60:00</div>
+      </div>
+      <div id="teamTagStation" class="team-tag">—</div>
+    </div>
+
+    <div class="station-card">
+      <h3 id="stationTitle"></h3>
+      <p id="stationType" class="type-tag"></p>
+      <div id="stationDesc" class="station-desc"></div>
+
+      <div id="stationRules"></div>
+      <div id="stationMoves"></div>
+
+      <div id="answerBlock" class="answer-row hidden">
+        <input id="answerInput" type="text" placeholder="введите ответ..." autocomplete="off">
+        <button id="checkBtn" class="primary">ПРОВЕРИТЬ</button>
+      </div>
+
+      <div id="feedback" class="feedback"></div>
+
+      <div id="roundTimer" class="round-timer hidden">
+        <div class="rt-label">ТАЙМЕР РАУНДА</div>
+        <div id="rtClock" class="rt-clock">03:00</div>
+        <button id="rtStart" class="ghost small">▶ ЗАПУСТИТЬ</button>
+      </div>
+
+      <button id="hintBtn" class="ghost small">💡 ПОДСКАЗКА</button>
+      <div id="hintBox" class="hint"></div>
+
+      <button id="doneBtn" class="big-done hidden">ВЫПОЛНЕНО ✓</button>
+      <button id="backToMap" class="back-btn">← НАЗАД НА КАРТУ</button>
+    </div>
+  </section>
+
+  <!-- ============ ФИНАЛ ============ -->
+  <section id="screen-final" class="screen">
+    <div class="final-wrap">
+      <h1 class="glitch">🎉 КВЕСТ ПРОЙДЕН!</h1>
+      <p class="final-sub">Вы справились со всеми испытаниями</p>
+
+      <div class="final-teams">
+        <span class="final-team-chip red">🔴 Красные</span>
+        <span class="final-team-chip blue">🔵 Синие</span>
+        <span class="final-team-chip green">🟢 Зелёные</span>
+      </div>
+
+      <div class="final-message">
+        <h2>СПАСИБО ЗА УЧАСТИЕ!</h2>
+        <p>Сегодня вы познакомились, проверили свою память, реакцию и умение работать в команде.</p>
+        <p><b>«Первый шаг в студенческую жизнь сделан вместе!»</b></p>
+        <p class="small-muted">📸 Подойдите к организаторам для общего фото и подведения итогов</p>
+      </div>
+
+      <button id="backFromFinal" class="back-btn">← НАЗАД НА КАРТУ</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ============ ДАННЫЕ ============ */
+  const RIDDLES = [
+    `Здесь время измеряют не только часами, а расстояние — не только метрами.
+Здесь один человек может соревноваться с собой, а несколько — друг с другом.
+Здесь результат зависит не от того, сколько ты знаешь, а от того, что способен сделать.
+Иногда здесь достаточно одной ошибки, чтобы пришлось начинать заново.`,
+    `У этого места нет одного назначения.
+Сегодня здесь можно проверять скорость, завтра — силу, а потом — ловкость и реакцию.
+Пространство остаётся тем же, меняются только правила игры.
+Здесь стены молчат, но пол постоянно напоминает, что стоять на месте — не лучший вариант.`,
+    `Здесь проигрывают не те, кто слаб, а те, кто сдался.
+Здесь можно упасть и снова встать — и никто не осудит.
+Здесь проверяют не оценки, а характер.
+Здесь победа пахнет потом, а не удачей.`,
+    `Здесь есть разметка, но нет дорог.
+Здесь есть соперники, но нет врагов.
+Здесь можно быть последним — и всё равно стать первым,
+если обогнать самого себя.`
+  ];
+
+  const STATIONS = [
+    {
+      id: 1, phase: 1,
+      title: "РАЗГАДАЙ ЗАГАДКУ",
+      type: "ОНЛАЙН",
+      short: "Разгадай загадку о месте",
+      riddle: true,
+      hint: "Ищите место, где важны физические способности. Там можно не только заниматься, но и соревноваться.",
+      answer: ["спортзал", "спортивный зал", "зал"],
+      hasInput: true
+    },
+    {
+      id: 2, phase: 1,
+      title: "ЗАПОМНИ ДВИЖЕНИЯ",
+      type: "С ВЕДУЩИМ",
+      short: "Повтори последовательность",
+      desc: `Перед вами появится последовательность движений.
+Внимательно посмотрите и запомните каждое движение и его порядок.
+После окончания показа изображения исчезнут — ваша задача повторить всё в правильном порядке.`,
+      hint: "Запоминайте не только сами движения, но и их порядок.",
+      rules: "Ведущий показывает 6 движений по 6 секунд каждое. После показа команда повторяет последовательность.",
+      moves: [
+        { emoji: "🙌", text: "Руки вверх" },
+        { emoji: "🧎", text: "Присесть" },
+        { emoji: "↔️", text: "Руки в стороны" },
+        { emoji: "↪️", text: "Поворот направо" },
+        { emoji: "🙅", text: "Скрестить руки" },
+        { emoji: "👏", text: "Хлопнуть" }
+      ],
+      hasInput: false
+    },
+    {
+      id: 3, phase: 2,
+      title: "НАЩУПАЙ И УГАДАЙ",
+      type: "С ВЕДУЩИМ",
+      short: "Определи предмет на ощупь",
+      desc: `Один участник выходит вперёд.
+Ему завязывают глаза.
+Перед ним находится неизвестный предмет.
+Смотреть нельзя — ваша задача определить предмет только на ощупь.`,
+      hint: "Обратите внимание на форму, размер, материал и поверхность предмета.",
+      rules: "3 попытки на команду. Ведущий выбирает предмет из подготовленных.",
+      hasInput: false
+    },
+    {
+      id: 4, phase: 2,
+      title: "ПЕРЕВЕРНИ ПОЛОТНО",
+      type: "КОМАНДНАЯ",
+      short: "Перевернуть полотно без касания земли",
+      desc: `Вся команда должна находиться на полотне.
+Ваша задача — полностью перевернуть полотно на другую сторону.
+При этом никто не должен коснуться земли.
+Используйте командную работу и придумайте свой способ.`,
+      hint: "Не спешите. Сначала придумайте общий план, а уже потом начинайте действовать.",
+      rules: [
+        "Нельзя наступать на землю",
+        "Нельзя выходить за пределы полотна",
+        "Нельзя специально толкать участников",
+        "Можно помогать друг другу",
+        "При касании земли — попытка начинается заново"
+      ],
+      hasInput: false
+    },
+    {
+      id: 5, phase: 2,
+      title: "ПОЙМАЙ ПАЛКУ",
+      type: "КОМАНДНАЯ",
+      short: "Поймать палку соседа",
+      desc: `Встаньте в круг. Каждый участник держит одну палку вертикально.
+По команде ведущего отпустите свою палку и быстро переместитесь к следующей.
+Ваша задача — поймать палку другого участника до того, как она упадёт.`,
+      hint: "Смотрите не только на свою палку, но и на человека справа.",
+      rules: [
+        "Не толкаться",
+        "Соблюдать дистанцию",
+        "Не мешать другим участникам",
+        "Если палка упала — попытка начинается заново",
+        "1-й раунд: по часовой стрелке",
+        "2-й раунд: против часовой стрелки"
+      ],
+      hasInput: false
+    },
+    {
+      id: 6, phase: 2,
+      title: "🏆 ФИНАЛ · ОХОТА ЗА ЛЕНТАМИ",
+      type: "ОБЩАЯ ИГРА · 3 КОМАНДЫ",
+      short: "Сохрани свою ленту, забери чужие",
+      desc: `Все три команды играют одновременно.
+Каждому участнику прикрепляется лента его цвета.
+Ваша задача — сохранить свою ленту и забрать ленты участников других команд.`,
+      hint: "Двигайтесь аккуратно. Разрешено только вытаскивать ленты.",
+      rules: [
+        "❌ Толкаться",
+        "❌ Хватать людей за одежду",
+        "❌ Ставить подножки",
+        "❌ Специально сталкиваться",
+        "❌ Удерживать участников",
+        "✅ Разрешается только аккуратно вытаскивать ленты",
+        "⏱ 2–3 минуты один раунд, можно 2 раунда"
+      ],
+      hasInput: false,
+      isFinal: true,
+      roundTimer: true
+    }
+  ];
+
+  const TEAMS = {
+    red:   { label: "🔴 КРАСНЫЕ",  short: "🔴 Красные" },
+    blue:  { label: "🔵 СИНИЕ",    short: "🔵 Синие" },
+    green: { label: "🟢 ЗЕЛЁНЫЕ",  short: "🟢 Зелёные" }
+  };
+
+  /* ============ СОСТОЯНИЕ ============ */
+  const state = {
+    name: "",
+    team1: "",       // команда фазы 1 (колледж)
+    team2: "",       // команда фазы 2 (парк)
+    phase: 1,        // текущая фаза
+    completed: {},
+    timerEnd: null,
+    timerInterval: null
+  };
+
+  const $ = (s) => document.querySelector(s);
+  const screens = {
+    start: $("#screen-start"),
+    map: $("#screen-map"),
+    transition: $("#screen-transition"),
+    station: $("#screen-station"),
+    final: $("#screen-final")
+  };
+
+  function currentTeam() { return state.phase === 1 ? state.team1 : state.team2; }
+
+  /* ============ ЗВУКИ ============ */
+  let audioCtx = null;
+  function beep(freq, duration, type) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type || "sine";
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  }
+  function soundSuccess() { beep(660, 0.12); setTimeout(() => beep(880, 0.18), 100); }
+  function soundError() { beep(220, 0.25, "square"); }
+
+  /* ============ LOCALSTORAGE ============ */
+  function saveState() {
+    try {
+      localStorage.setItem("itop_quest_v2", JSON.stringify({
+        name: state.name, team1: state.team1, team2: state.team2,
+        phase: state.phase, completed: state.completed, timerEnd: state.timerEnd
+      }));
+    } catch (e) {}
+  }
+  function loadState() {
+    try {
+      const raw = localStorage.getItem("itop_quest_v2");
+      if (!raw) return false;
+      const d = JSON.parse(raw);
+      state.name = d.name || "";
+      state.team1 = d.team1 || "";
+      state.team2 = d.team2 || "";
+      state.phase = d.phase || 1;
+      state.completed = d.completed || {};
+      state.timerEnd = d.timerEnd || null;
+      return !!(state.name && state.team1);
+    } catch (e) { return false; }
+  }
+
+  /* ============ ЭКРАНЫ ============ */
+  function showScreen(name) {
+    Object.values(screens).forEach(s => s.classList.remove("active"));
+    screens[name].classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  /* ============ СТАРТ — распределение 1 из 2 ============ */
+  const playerName = $("#playerName");
+  const startBtn = $("#startBtn");
+  const diceBtn1 = $("#diceBtn1");
+  let pendingTeam1 = null;
+
+  playerName.addEventListener("input", () => {
+    diceBtn1.disabled = playerName.value.trim().length < 2;
+    validateStart();
+  });
+
+  diceBtn1.addEventListener("click", () => {
+    const options = ["red", "blue"];
+    pendingTeam1 = options[Math.floor(Math.random() * options.length)];
+    showAssignResult("assign1", "assign1Team", pendingTeam1);
+    highlightTeamBtns(1, pendingTeam1);
+    soundSuccess();
+    validateStart();
+  });
+
+  document.querySelectorAll('.team-btn[data-phase="1"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      pendingTeam1 = btn.dataset.team;
+      showAssignResult("assign1", "assign1Team", pendingTeam1);
+      highlightTeamBtns(1, pendingTeam1);
+      soundSuccess();
+      validateStart();
+    });
+  });
+
+  function highlightTeamBtns(phase, team) {
+    document.querySelectorAll(`.team-btn[data-phase="${phase}"]`).forEach(b => {
+      b.classList.toggle("selected", b.dataset.team === team);
+    });
+  }
+
+  function showAssignResult(boxId, teamId, team) {
+    const box = document.getElementById(boxId);
+    const el = document.getElementById(teamId);
+    box.classList.remove("hidden", "red", "blue", "green");
+    box.classList.add(team);
+    el.textContent = TEAMS[team].label;
+  }
+
+  function validateStart() {
+    startBtn.disabled = !(pendingTeam1 && playerName.value.trim().length >= 2);
+  }
+
+  startBtn.addEventListener("click", () => {
+    state.name = playerName.value.trim();
+    state.team1 = pendingTeam1;
+    state.phase = 1;
+    state.timerEnd = Date.now() + 60 * 60 * 1000;
+    saveState();
+    startTimer();
+    renderMap();
+    showScreen("map");
+  });
+
+  /* ============ ТАЙМЕР ============ */
+  function startTimer() {
+    if (state.timerInterval) clearInterval(state.timerInterval);
+    updateTimerDisplay();
+    state.timerInterval = setInterval(updateTimerDisplay, 1000);
+  }
+
+  function updateTimerDisplay() {
+    if (!state.timerEnd) return;
+    const left = Math.max(0, state.timerEnd - Date.now());
+    const totalSec = Math.floor(left / 1000);
+    const min = Math.floor(totalSec / 60);
+    const sec = totalSec % 60;
+    const str = String(min).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+
+    document.querySelectorAll(".clock").forEach(el => {
+      el.textContent = str;
+      el.classList.remove("warn", "danger");
+      if (totalSec <= 300) el.classList.add("danger");
+      else if (totalSec <= 600) el.classList.add("warn");
+    });
+
+    if (left === 0 && state.timerInterval) {
+      clearInterval(state.timerInterval);
+      state.timerInterval = null;
+    }
+  }
+
+  /* ============ КАРТА ============ */
+  function renderMap() {
+    const s1 = $("#stage1");
+    const s2 = $("#stage2");
+    s1.innerHTML = "";
+    s2.innerHTML = "";
+
+    const phase1 = STATIONS.filter(st => st.phase === 1);
+    const phase2 = STATIONS.filter(st => st.phase === 2);
+
+    phase1.forEach(st => s1.appendChild(makeTile(st)));
+    phase2.forEach(st => s2.appendChild(makeTile(st)));
+
+    // Показ/скрытие блоков по фазе
+    const stage2Wrap = $("#stage2Wrap");
+    const toParkBtn = $("#toParkBtn");
+    const qrWrap = $("#qrWrap");
+    const stageTitle1 = $("#stageTitle1");
+
+    const allPhase1Done = phase1.every(st => state.completed[st.id]);
+    const allPhase2Done = phase2.every(st => state.completed[st.id]);
+
+    if (state.phase === 1) {
+      stageTitle1.classList.remove("hidden");
+      stage2Wrap.classList.add("hidden");
+      qrWrap.classList.remove("hidden");
+      toParkBtn.classList.toggle("hidden", !allPhase1Done);
+    } else {
+      // Фаза 2: этап 1 показываем «серым» (уже пройден), этап 2 активен
+      stageTitle1.classList.remove("hidden");
+      stage2Wrap.classList.remove("hidden");
+      qrWrap.classList.add("hidden");
+      toParkBtn.classList.add("hidden");
+    }
+
+    $("#mapSub").textContent = state.phase === 1
+      ? "Проходи станции 1 и 2. Нажми на плитку — откроется задание."
+      : "Вы в парке. Проходи станции 3, 4, 5 и финал в любом порядке.";
+
+    updateProgress();
+    updateTeamTags();
+
+    if (allPhase1Done && state.phase === 1) {
+      // показать кнопку перехода
+      toParkBtn.classList.remove("hidden");
+    }
+    if (allPhase2Done && state.phase === 2) {
+      // всё готово, но финал сам перебрасывает на финальный экран
+    }
+  }
+
+  function makeTile(st) {
+    const done = !!state.completed[st.id];
+    const tile = document.createElement("button");
+    tile.type = "button";
+    tile.className = "station-tile" + (done ? " done" : "") + (st.isFinal ? " final-tile" : "");
+    tile.innerHTML = `
+      <div class="num">0${st.id}</div>
+      <div class="st-title">${st.title}</div>
+      <div class="st-sub">${st.short}</div>
+      ${done ? `<div class="check">✓</div>` : ""}
+    `;
+    tile.addEventListener("click", () => openStation(st.id));
+    return tile;
+  }
+
+  function updateTeamTags() {
+    const team = currentTeam();
+    if (!team) return;
+    const label = TEAMS[team].label;
+    const cls = "team-tag " + team;
+    ["#teamTagMap", "#teamTagStation"].forEach(sel => {
+      const el = document.querySelector(sel);
+      if (el) { el.textContent = label; el.className = cls; }
+    });
+  }
+
+  function updateProgress() {
+    const done = Object.keys(state.completed).length;
+    const total = STATIONS.length;
+    $("#progressNum").textContent = `${done} / ${total}`;
+    $("#progressFill").style.width = (done / total * 100) + "%";
+  }
+
+  /* ============ ПЕРЕХОД В ПАРК ============ */
+  $("#toParkBtn").addEventListener("click", () => {
+    // Не даём повторно, если уже перешли
+    if (state.team2) {
+      // Уже была распределена — просто переходим
+      state.phase = 2;
+      saveState();
+      renderMap();
+      showScreen("map");
+      return;
+    }
+    showScreen("transition");
+    resetTransitionUI();
+  });
+
+  function resetTransitionUI() {
+    $("#assign2").classList.add("hidden");
+    document.querySelectorAll('.team-btn[data-phase="2"]').forEach(b => b.classList.remove("selected"));
+    $("#toParkGo").disabled = true;
+    // Разблокируем кнопку кубика
+    $("#diceBtn2").disabled = false;
+  }
+
+  let pendingTeam2 = null;
+
+  $("#diceBtn2").addEventListener("click", () => {
+    const options = ["red", "blue", "green"];
+    pendingTeam2 = options[Math.floor(Math.random() * options.length)];
+    showAssignResult("assign2", "assign2Team", pendingTeam2);
+    highlightTeamBtns(2, pendingTeam2);
+    $("#toParkGo").disabled = false;
+    soundSuccess();
+  });
+
+  document.querySelectorAll('.team-btn[data-phase="2"]').forEach(btn => {
+    btn.addEventListener("click", () => {
+      pendingTeam2 = btn.dataset.team;
+      showAssignResult("assign2", "assign2Team", pendingTeam2);
+      highlightTeamBtns(2, pendingTeam2);
+      $("#toParkGo").disabled = false;
+      soundSuccess();
+    });
+  });
+
+  $("#toParkGo").addEventListener("click", () => {
+    if (!pendingTeam2) return;
+    state.team2 = pendingTeam2;
+    state.phase = 2;
+    saveState();
+    renderMap();
+    showScreen("map");
+  });
+
+  $("#backFromTransition").addEventListener("click", () => {
+    renderMap();
+    showScreen("map");
+  });
+
+  /* ============ СТАНЦИЯ ============ */
+  let currentStation = null;
+
+  function openStation(id) {
+    const st = STATIONS.find(s => s.id === id);
+    if (!st) return;
+    // Не даём открыть станции не своей фазы
+    if (st.phase !== state.phase) return;
+    currentStation = st;
+
+    $("#stationTitle").textContent = `0${st.id} · ${st.title}`;
+    $("#stationType").textContent = st.type;
+
+    let descHTML = "";
+    if (st.riddle) {
+      const riddle = RIDDLES[Math.floor(Math.random() * RIDDLES.length)];
+      descHTML = `<div class="banner">${riddle}</div><p>Что это за место? Введите ответ ниже.</p>`;
+    } else {
+      descHTML = st.desc;
+    }
+    $("#stationDesc").innerHTML = descHTML;
+
+    const rulesBox = $("#stationRules");
+    if (Array.isArray(st.rules) && st.rules.length) {
+      rulesBox.innerHTML = `
+        <div class="rules-list">
+          <div class="rules-title">ПРАВИЛА</div>
+          <ul>${st.rules.map(r => {
+            const isBan = r.startsWith("❌");
+            return `<li class="${isBan ? 'ban' : ''}">${r.replace(/^[❌✅⏱]\s?/, "")}</li>`;
+          }).join("")}</ul>
+        </div>`;
+    } else if (typeof st.rules === "string") {
+      rulesBox.innerHTML = `<div class="rules-list"><div class="rules-title">ПРАВИЛА</div><p style="font-size:14px;line-height:1.7;">${st.rules}</p></div>`;
+    } else {
+      rulesBox.innerHTML = "";
+    }
+
+    const movesBox = $("#stationMoves");
+    if (Array.isArray(st.moves)) {
+      movesBox.innerHTML = `
+        <div class="moves-grid">
+          ${st.moves.map((m, i) => `
+            <div class="move-card">
+              <span class="move-emoji">${m.emoji}</span>
+              <div class="move-num">${i + 1}</div>
+              <div class="move-text">${m.text}</div>
+            </div>
+          `).join("")}
+        </div>`;
+    } else {
+      movesBox.innerHTML = "";
+    }
+
+    const answerBlock = $("#answerBlock");
+    const feedback = $("#feedback");
+    const hintBox = $("#hintBox");
+    const doneBtn = $("#doneBtn");
+    const roundTimer = $("#roundTimer");
+
+    feedback.textContent = "";
+    feedback.className = "feedback";
+    hintBox.classList.remove("show");
+    hintBox.textContent = st.hint || "";
+
+    if (st.hasInput) {
+      answerBlock.classList.remove("hidden");
+      const inp = $("#answerInput");
+      inp.value = ""; inp.disabled = false;
+      $("#checkBtn").disabled = false;
+      doneBtn.classList.add("hidden");
+    } else {
+      answerBlock.classList.add("hidden");
+      doneBtn.classList.remove("hidden");
+      doneBtn.disabled = false;
+      doneBtn.textContent = st.isFinal ? "ФИНАЛ ПРОЙДЕН 🎉" : "ВЫПОЛНЕНО ✓";
+    }
+
+    if (st.roundTimer) {
+      roundTimer.classList.remove("hidden");
+      $("#rtClock").textContent = "03:00";
+      $("#rtClock").classList.remove("danger");
+      $("#rtStart").disabled = false;
+      $("#rtStart").textContent = "▶ ЗАПУСТИТЬ";
+    } else {
+      roundTimer.classList.add("hidden");
+    }
+
+    if (state.completed[st.id]) {
+      feedback.textContent = "✓ Эта станция уже пройдена";
+      feedback.className = "feedback ok";
+      doneBtn.disabled = true;
+      if (st.hasInput) {
+        $("#answerInput").disabled = true;
+        $("#checkBtn").disabled = true;
+      }
+    } else {
+      if (st.hasInput) setTimeout(() => $("#answerInput").focus(), 100);
+    }
+
+    showScreen("station");
+  }
+
+  $("#backToMap").addEventListener("click", () => {
+    renderMap();
+    showScreen("map");
+  });
+
+  $("#hintBtn").addEventListener("click", () => {
+    $("#hintBox").classList.toggle("show");
+  });
+
+  /* ============ ОТВЕТ ============ */
+  $("#checkBtn").addEventListener("click", checkAnswer);
+  $("#answerInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") checkAnswer();
+  });
+
+  function normalize(str) {
+    return String(str).trim().toLowerCase().replace(/[.,!?;:]/g, "").replace(/\s+/g, " ");
+  }
+
+  function checkAnswer() {
+    if (!currentStation || !currentStation.hasInput) return;
+    const input = $("#answerInput");
+    const feedback = $("#feedback");
+    const val = normalize(input.value);
+    if (!val) return;
+
+    const correct = currentStation.answer.some(a => normalize(a) === val);
+
+    if (correct) {
+      soundSuccess();
+      state.completed[currentStation.id] = true;
+      saveState();
+      feedback.textContent = `✓ ВЕРНО! Это ${currentStation.answer[0]}.`;
+      feedback.className = "feedback ok";
+      $("#checkBtn").disabled = true;
+      input.disabled = true;
+      updateProgress();
+      setTimeout(() => {
+        renderMap();
+        showScreen("map");
+      }, 2000);
+    } else {
+      soundError();
+      feedback.textContent = "✗ Неверно. Попробуйте ещё раз или откройте подсказку.";
+      feedback.className = "feedback err";
+      input.select();
+    }
+  }
+
+  /* ============ ВЫПОЛНЕНО ============ */
+  $("#doneBtn").addEventListener("click", () => {
+    if (!currentStation) return;
+    soundSuccess();
+    state.completed[currentStation.id] = true;
+    saveState();
+    updateProgress();
+
+    const isFinal = currentStation.isFinal;
+    setTimeout(() => {
+      if (isFinal) {
+        showScreen("final");
+        launchConfetti();
+      } else {
+        renderMap();
+        showScreen("map");
+      }
+    }, 600);
+  });
+
+  /* ============ ТАЙМЕР РАУНДА ============ */
+  $("#rtStart").addEventListener("click", () => {
+    let left = 180;
+    const clock = $("#rtClock");
+    const btn = $("#rtStart");
+    btn.disabled = true;
+    btn.textContent = "ИДЁТ...";
+
+    const iv = setInterval(() => {
+      left--;
+      const m = Math.floor(left / 60);
+      const s = left % 60;
+      clock.textContent = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      if (left <= 30) clock.classList.add("danger");
+      if (left <= 0) {
+        clearInterval(iv);
+        clock.textContent = "00:00";
+        btn.textContent = "РАУНД ЗАВЕРШЁН";
+        beep(440, 0.4);
+      }
+    }, 1000);
+  });
+
+  /* ============ ФИНАЛ — КНОПКА НАЗАД ============ */
+  $("#backFromFinal").addEventListener("click", () => {
+    renderMap();
+    showScreen("map");
+  });
+
+  /* ============ КОНФЕТТИ ============ */
+  function launchConfetti() {
+    const canvas = document.createElement("canvas");
+    Object.assign(canvas.style, {
+      position: "fixed", inset: "0", pointerEvents: "none", zIndex: "9999"
+    });
+    document.body.appendChild(canvas);
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const colors = ["#00ff9d", "#00c8ff", "#ff3b3b", "#3b82ff", "#22c55e", "#ffd166"];
+    const parts = Array.from({ length: 180 }, () => ({
+      x: Math.random() * canvas.width,
+      y: -20 - Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 3,
+      vy: 2 + Math.random() * 4,
+      size: 4 + Math.random() * 8,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rot: Math.random() * Math.PI
+    }));
+
+    let frames = 0;
+    function tick() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      parts.forEach(p => {
+        p.x += p.vx; p.y += p.vy; p.rot += 0.06;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+      });
+      frames++;
+      if (frames < 420) requestAnimationFrame(tick);
+      else canvas.remove();
+    }
+    tick();
+  }
+
+  /* ============ ПРИ ЗАГРУЗКЕ ============ */
+  window.addEventListener("DOMContentLoaded", () => {
+    if (loadState()) {
+      pendingTeam1 = state.team1;
+      startTimer();
+      renderMap();
+      showScreen("map");
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
